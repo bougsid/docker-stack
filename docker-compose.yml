@@ -33,15 +33,15 @@ services:
    - "9000:9000"
   networks:
     - devnet
-  links:
-    - sonardb
   environment:
-    - SONARQUBE_JDBC_USERNAME=sonar
-    - SONARQUBE_JDBC_PASSWORD=sonar
+    - SONARQUBE_JDBC_USERNAME=root
+    - SONARQUBE_JDBC_PASSWORD=root
     - SONARQUBE_JDBC_URL=jdbc:mysql://sonardb:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
   volumes:
     - "/opt/sonar/:/var/lib/sonar"
-    
+  depends_on:
+    - mysql
+
  mysql:
   image: mysql
   networks:
@@ -53,5 +53,6 @@ services:
   tty: true
   environment:
     - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_DATABASE=sonardb
   volumes:
     - /opt/mysql:/var/lib/mysql:rw
