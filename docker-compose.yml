@@ -1,0 +1,57 @@
+version: '2'
+
+networks:
+  devnet:
+    driver: bridge
+
+services:
+ nexus:
+  image: sonatype/nexus
+  container_name: nexus
+  ports:
+    - "8081:8081"
+  networks:
+    - devnet
+  volumes:
+    - "/opt/nexus/:/var/lib/nexus"
+
+ jenkins:
+  image: jenkins
+  container_name: jenkins
+  ports:
+    - "8080:8080"
+  networks:
+    - devnet
+  volumes:
+    - "$PWD/jenkins:/var/jenkins_home"
+ 
+ sonarqube:
+  image: sonarqube
+  container_name: sonarqube
+  restart: always
+  ports:
+   - "9000:9000"
+  networks:
+    - devnet
+  links:
+    - sonardb
+  environment:
+    - SONARQUBE_JDBC_USERNAME=sonar
+    - SONARQUBE_JDBC_PASSWORD=sonar
+    - SONARQUBE_JDBC_URL=jdbc:mysql://sonardb:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
+  volumes:
+    - "/opt/sonar/:/var/lib/sonar"
+    
+ mysql:
+  image: mysql
+  networks:
+    - devnet
+  container_name: "sonardb"
+  restart: always
+  ports:
+    - 3306:3306
+  tty: true
+  environment:
+    - MYSQL_ROOT_PASSWORD=root
+  volumes:
+    - /opt/mysql:/var/lib/mysql:rw
